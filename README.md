@@ -23,3 +23,5 @@ See this medium article [A beginner’s guide to institutional cryptoeconomics](
 ### `virtualenv '<project>`
 
 ### `pip install flask`
+
+### `pip install -r requirements.txt`
