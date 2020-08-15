@@ -24,6 +24,8 @@ class Blockchain:
         self.transactions = []
         # genesis block or the first block in the chain
         self.create_block(proof=1, previous_hash='0')
+        # initialize nodes as a set
+        self.nodes = set()
 
     # define block structure with 4 essential keys exluding 'data'
     def create_block(self, proof, previous_hash):
@@ -90,6 +92,37 @@ class Blockchain:
         # only add to new oncoming block
         previous_block = self.get_previous_block()
         return previous_block['index'] + 1
+
+    # add address as a node
+    def add_node(self, address):
+        # use url parse lib to process address into an obj
+        parsed_url = urlparse(address)
+        # add netloc from address IOT ID node and add that to the set
+        self.nodes.add(parsed_url.netloc)
+
+    def replace_chain(self):
+        network = self.nodes
+        longest_chain = None
+        # initialize length of chain as the current node
+        max_length = len(self.chain)
+        for nodes in network:
+            response = requests.get(f'http://{node}/get_chain')
+            # check if response is ok and get length of chain and the chain
+            if response.status_code = 200:
+                length = response.json()['length']
+                chain = response.json()['chain']
+                # check if length is bigger than another node and if that chain is valid
+                if length > max_length and self.is_chain_valid(chain):
+                    # set this chain length to the max length
+                    max_length = length
+                    # set this chain to the longest chain
+                    longest_chain = chain
+                # if longest_chain is NOT None, make the class's chain equal to longest chain
+                if longest_chain:
+                    self.chain = longest_chain
+                    return True
+                # else return false if the chain was not replaced or not the longest chain
+                return False
 
 
 # create web app
