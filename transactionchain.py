@@ -7,7 +7,12 @@ import hashlib
 # json lib for working with json
 import json
 # import flask class and jsonify for displaying web app and json response
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+# used to catch the correct node for concensus
+import requests
+# functions used for each node in the network and to parce nodes
+from uuid import uuid4
+from urllib.parse import urlparse
 
 
 # define the blockchain
@@ -15,6 +20,8 @@ class Blockchain:
     def __init__(self):
         # list to represent the chain
         self.chain = []
+        # list to represent the transactions
+        self.transactions = []
         # genesis block or the first block in the chain
         self.create_block(proof=1, previous_hash='0')
 
@@ -23,7 +30,10 @@ class Blockchain:
         block = {'index': len(self.chain) + 1,
                  'timestamp': str(datetime.datetime.now()),
                  'proof': proof,
-                 'previous_hash': previous_hash, }
+                 'previous_hash': previous_hash,
+                 'tranactions': self.transactions}
+        # make sure to empty transactions so they are only assigned to one block.
+        self.transactions = []
         self.chain.append(block)
         return block
 
@@ -70,6 +80,16 @@ class Blockchain:
             previous_block = block
             block_index += 1
         return True
+
+    # add data  or 'transaction' to block
+    def add_transaction(self, sender, reciever, amount):
+        self.transactions.append({'sender': sender,
+                                  'reciever': reciever,
+                                  'amount': amount})
+
+        # only add to new oncoming block
+        previous_block = self.get_previous_block()
+        return previous_block['index'] + 1
 
 
 # create web app
