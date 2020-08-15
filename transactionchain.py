@@ -15,7 +15,9 @@ from uuid import uuid4
 from urllib.parse import urlparse
 
 
-# define the blockchain
+######################################################################
+# 1 define the blockchain
+######################################################################
 class Blockchain:
     def __init__(self):
         # list to represent the chain
@@ -27,7 +29,7 @@ class Blockchain:
         # initialize nodes as a set
         self.nodes = set()
 
-    # define block structure with 4 essential keys exluding 'data'
+    # define block structure with keys
     def create_block(self, proof, previous_hash):
         block = {'index': len(self.chain) + 1,
                  'timestamp': str(datetime.datetime.now()),
@@ -105,10 +107,10 @@ class Blockchain:
         longest_chain = None
         # initialize length of chain as the current node
         max_length = len(self.chain)
-        for nodes in network:
+        for node in network:
             response = requests.get(f'http://{node}/get_chain')
             # check if response is ok and get length of chain and the chain
-            if response.status_code = 200:
+            if response.status_code == 200:
                 length = response.json()['length']
                 chain = response.json()['chain']
                 # check if length is bigger than another node and if that chain is valid
@@ -125,15 +127,24 @@ class Blockchain:
                 return False
 
 
+######################################################################
+# 2 create the blockchain
+######################################################################
 # create web app
 app = Flask(__name__)
+
+
+# create an address for the node on Port 5000 so we know what node had a transaction
+# uuid is used to create a unique id for the address
+# get rid of '-' with replace method
+node_address = str(uuid4()).replace('-', '')
+
 
 # create a chain instance
 blockchain = Blockchain()
 
+
 # add a block/get a new block
-
-
 @app.route('/add_block', methods=['GET'])
 def add_block():
     # get prvious block
@@ -144,6 +155,8 @@ def add_block():
     proof = blockchain.proof_of_work(previous_proof)
     # get the previous blocks hash
     previous_hash = blockchain.hash(previous_block)
+    # add the transaction information to the block
+    blockchain.add_transaction(sender=node_address, reciever='Zach', amount=1)
     # get new block dict
     block = blockchain.create_block(proof, previous_hash)
     # display results in json format
@@ -151,7 +164,8 @@ def add_block():
                 'index': block['index'],
                 'timestamp': block['timestamp'],
                 'proof': block['proof'],
-                'previous_hash': block['previous_hash']}
+                'previous_hash': block['previous_hash'],
+                'transactions': block['transactions']}
     return jsonify(response), 200
 
 
@@ -172,6 +186,29 @@ def is_valid():
     else:
         response = {'message': 'chain NOT valid.'}
     return jsonify(response), 200
+
+# add transaction info to current newly added block
+
+
+@app.route('/add_transaction', methods=['POST'])
+def add_transaction():
+     json = request.get_json()
+    transaction_keys = ['sender', 'receiver', 'amount']
+    if not all(key in json for key in transaction_keys):
+        return 'Some elements of the transaction are missing', 400
+    # call add_transaction which already handles current index of block pass in VALUES of keys
+    index = blockchain.add_transaction(json['sender'], json['receiver'], json['amount'])
+    response = {'message': f'this transaction will be added to block {index}'}
+    # 201 created response
+    return jsonify(response), 201
+
+######################################################################
+# 3 decentralize the blockchain
+######################################################################
+
+
+
+
 
 
 # Running the app
