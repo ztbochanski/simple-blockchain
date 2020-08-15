@@ -187,17 +187,17 @@ def is_valid():
         response = {'message': 'chain NOT valid.'}
     return jsonify(response), 200
 
+
 # add transaction info to current newly added block
-
-
 @app.route('/add_transaction', methods=['POST'])
 def add_transaction():
-     json = request.get_json()
+    json = request.get_json()
     transaction_keys = ['sender', 'receiver', 'amount']
     if not all(key in json for key in transaction_keys):
         return 'Some elements of the transaction are missing', 400
     # call add_transaction which already handles current index of block pass in VALUES of keys
-    index = blockchain.add_transaction(json['sender'], json['receiver'], json['amount'])
+    index = blockchain.add_transaction(
+        json['sender'], json['receiver'], json['amount'])
     response = {'message': f'this transaction will be added to block {index}'}
     # 201 created response
     return jsonify(response), 201
@@ -205,10 +205,6 @@ def add_transaction():
 ######################################################################
 # 3 decentralize the blockchain
 ######################################################################
-
-
-
-
 
 
 # Running the app
