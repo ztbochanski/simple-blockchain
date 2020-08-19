@@ -25,3 +25,5 @@ See this medium article [A beginner’s guide to institutional cryptoeconomics](
 ### `pip install flask`
 
 ### `pip install -r requirements.txt`
+
+- currently using postman to execute GET/POST etc, future developments may include a simple gui in order to demonstrate funcitonality.

@@ -26,7 +26,7 @@ class Blockchain:
         self.transactions = []
         # genesis block or the first block in the chain
         self.create_block(proof=1, previous_hash='0')
-        # initialize nodes as a set
+        # initialize nodes(number of network connections) as a set
         self.nodes = set()
 
     # define block structure with keys
